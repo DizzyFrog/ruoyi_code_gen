@@ -13,7 +13,7 @@ def _gen_sql_create_table(table_name, table_desc):
     rules:
     1.使用 CREATE TABLE IF NOT EXISTS 语法
     2.为表和字段添加有意义的中文注释（最多四个汉字）
-    3.包含大约 12 个字段
+    3.包含大约 10 个以上与功能相关且有意义的字段
     4.必须包含主键 id 字段，且为自增
     5.除主键 id 和日期字段外，所有字段使用 VARCHAR(255) 类型
     6.最多包含 3 个与时间相关的字段，日期字段使用 DATETIME 类型
@@ -22,12 +22,22 @@ def _gen_sql_create_table(table_name, table_desc):
     response = get_response_with_tongyi(prompt)
     return response
 
+def gen_sql_to_file(data_dict, file_path):
+    """
+    将生成的 SQL 语句写入文件
+    """
+    with open(file_path, 'w') as f:
+        for item in data_dict:
+            table_name = item['表号']
+            table_desc = item['功能']
+            sql = _gen_sql_create_table(table_name, table_desc).replace("```sql", "").replace("```", "")
+            f.write(f"# Table Name: {table_name}\n")
+            f.write(f"# Table Description: {table_desc}\n")
+            f.write(f"{sql}\n")
+            f.write("-" * 50 + "\n")
+
 if __name__ == '__main__':
     data_dict = read_excel_to_dict()
-    for item in data_dict[:4]:
-        table_name = item['表号']
-        table_desc = item['功能']
-        sql = _gen_sql_create_table(table_name, table_desc)
-        print(f"Table Name: {table_name}")
-        print(f"SQL: {sql}")
-        print("=" * 50)
+    sql_file_path = 'data/output/sql_statements.sql'
+    gen_sql_to_file(data_dict, sql_file_path)
+    print(f"SQL statements generated and saved to {sql_file_path}")
