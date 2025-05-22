@@ -11,3 +11,4 @@ wheels/
 .DS_Store
 .idea
 data/output/
+!data/output/.gitkeep
